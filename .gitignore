@@ -1,0 +1,9 @@
+# Angular generated files
+/dist/
+/node_modules/
+
+# IDE/Editor files
+/.idea/
+/.vscode/
+
+/.DS_Store/
