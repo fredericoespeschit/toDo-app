@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Todo } from 'src/model/todo.model';
 
 @Component({
@@ -9,11 +10,30 @@ import { Todo } from 'src/model/todo.model';
 export class AppComponent {
   public todos: Todo [] = [];
   public title: String= "Minhas tarefas";
+  public form: FormGroup;
 
-  constructor() {
-    this.todos.push(new Todo(1, 'task 1', false));
-    this.todos.push(new Todo(2, 'task 2', false));
-    this.todos.push(new Todo(3, 'task 3', true));
+
+  constructor(private fb: FormBuilder) {
+    this.form = this.fb.group({
+      task: ['', Validators.compose([
+        Validators.minLength(3),
+        Validators.maxLength(60),
+        Validators.required
+      ])]
+    })
+    this.load();
+  }
+
+  add(){
+    const task = this.form.controls['task'].value;
+    const id = this.todos.length + 1;
+    this.todos.push(new Todo(id, task, false))
+    this.save();
+    this.clear();
+  }
+
+  clear(){
+    this.form.reset();
   }
 
   remove(todo: Todo){
@@ -21,13 +41,32 @@ export class AppComponent {
     if(index !== -1){
       this.todos.splice(index, 1);
     }
+    this.save();
+
   }
 
   markAsDone(todo: Todo){
     todo.done = true;
+    this.save();
+
   }
 
   markAsUndone(todo: Todo){
-    todo.done = false
+    todo.done = false;
+    this.save();
+
+  }
+
+  save(){
+    const data = JSON.stringify(this.todos);
+    localStorage.setItem('todos', data);
+  }
+
+  load(){
+    const datao = localStorage.getItem('todos');
+    if(datao !== null) {
+      this.todos = JSON.parse(datao);
+    }
+
   }
 }
